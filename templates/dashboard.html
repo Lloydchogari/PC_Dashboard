@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>System Dashboard</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: linear-gradient(135deg, #0c0642, #1a1a1a);
+      color: #87CEFA;
+    }
+
+    h1, h2 {
+      color: #003cff;
+      
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+      transition: all 0.3s ease;
+    }
+
+    .chart {
+      width: 100%;
+      height: 300px;
+    }
+  </style>
+</head>
+<body>
+  <h1>💻 My PC System Dashboard</h1>
+  <div class="container">
+    <div class="card">
+      <h2>CPU Usage</h2>
+      <div id="cpu_chart" class="chart"></div>
+    </div>
+    <div class="card">
+      <h2>Memory Usage</h2>
+      <div id="memory_chart" class="chart"></div>
+    </div>
+    <div class="card">
+      <h2>Disk Usage</h2>
+      <div id="disk_chart" class="chart"></div>
+    </div>
+    <div class="card">
+      <h2>Network Load</h2>
+      <div id="line_chart" class="chart"></div>
+    </div>
+    <div class="card">
+      <h2>File Growth</h2>
+      <div id="area_chart" class="chart"></div>
+    </div>
+    <div class="card">
+      <h2>Latency Histogram</h2>
+      <div id="hist_chart" class="chart"></div>
+    </div>
+    <div class="card">
+      <h2>System Health Gauge</h2>
+      <div id="gauge_chart" class="chart"></div>
+    </div>
+  </div>
+
+  <script>
+    function updateCharts(data) {
+      // Bar chart - CPU
+      Plotly.newPlot('cpu_chart', [{
+        type: 'bar',
+        x: ['CPU'],
+        y: [data.cpu],
+        marker: { color: 'deepskyblue' }
+      }], {
+        title: 'CPU Usage (%)',
+        paper_bgcolor: 'black',
+        plot_bgcolor: 'black',
+        font: { color: 'lightblue' },
+        yaxis: { range: [0, 100] }
+      });
+
+      // Donut chart - Memory
+      Plotly.newPlot('memory_chart', [{
+        type: 'pie',
+        values: [data.mem_used, data.mem_total - data.mem_used],
+        labels: ['Used', 'Free'],
+        hole: 0.4,
+        marker: { colors: ['#1E90FF', '#87CEFA'] }
+      }], {
+        title: 'Memory Usage',
+        paper_bgcolor: 'black',
+        font: { color: 'lightblue' }
+      });
+
+      // Pie chart - Disk
+      Plotly.newPlot('disk_chart', [{
+        type: 'pie',
+        values: [data.disk_used, data.disk_total - data.disk_used],
+        labels: ['Used', 'Free'],
+        marker: { colors: ['dodgerblue', 'skyblue'] }
+      }], {
+        title: 'Disk Usage (GB)',
+        paper_bgcolor: 'black',
+        font: { color: 'lightblue' }
+      });
+
+      // Line Chart
+      const x_vals = Array.from({ length: 10 }, (_, i) => i);
+      const y_vals = x_vals.map(x => Math.sin(x));
+      Plotly.newPlot('line_chart', [{
+        type: 'scatter',
+        mode: 'lines+markers',
+        x: x_vals,
+        y: y_vals,
+        line: { color: 'cyan' }
+      }], {
+        title: 'Network Load (Simulated)',
+        paper_bgcolor: 'black',
+        plot_bgcolor: 'black',
+        font: { color: 'lightblue' }
+      });
+
+      // Area Chart
+      Plotly.newPlot('area_chart', [{
+        x: x_vals,
+        y: x_vals.map(x => x * 2),
+        fill: 'tozeroy',
+        type: 'scatter',
+        line: { color: 'dodgerblue' }
+      }], {
+        title: 'File Growth (Simulated)',
+        paper_bgcolor: 'black',
+        plot_bgcolor: 'black',
+        font: { color: 'lightblue' }
+      });
+
+      // Histogram
+      const randomData = Array.from({ length: 100 }, () => Math.random() * 100);
+      Plotly.newPlot('hist_chart', [{
+        type: 'histogram',
+        x: randomData,
+        marker: { color: 'skyblue' }
+      }], {
+        title: 'Latency Distribution',
+        paper_bgcolor: 'black',
+        plot_bgcolor: 'black',
+        font: { color: 'lightblue' }
+      });
+
+      // Gauge
+      Plotly.newPlot('gauge_chart', [{
+        type: "indicator",
+        mode: "gauge+number",
+        value: 70,
+        title: { text: "System Health", font: { color: "lightblue" } },
+        gauge: {
+          axis: { range: [0, 100], tickcolor: "lightblue" },
+          bar: { color: "deepskyblue" },
+          bgcolor: "black",
+          borderwidth: 2,
+          bordercolor: "white",
+          steps: [
+            { range: [0, 50], color: "#1E90FF" },
+            { range: [50, 100], color: "#4682B4" }
+          ]
+        }
+      }], {
+        paper_bgcolor: 'black',
+        font: { color: 'lightblue' }
+      });
+    }
+
+    function fetchStats() {
+      // Simulated data (replace with real API)
+      const mockData = {
+        cpu: Math.random() * 100,
+        mem_used: 6,
+        mem_total: 16,
+        disk_used: 250,
+        disk_total: 512
+      };
+      updateCharts(mockData);
+    }
+
+    fetchStats();
+    setInterval(fetchStats, 3000);
+  </script>
+</body>
+</html>
